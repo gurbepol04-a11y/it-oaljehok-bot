@@ -9,23 +9,28 @@ async function startBot() {
     sock.ev.on("creds.update", saveCreds);
 
     if(!sock.authState.creds.registered){
-        const number = "31647317700"; // VERVANG DIT MET JE EIGEN NUMMER! 06 wordt 316
+        const number = "31647317700";
         setTimeout(async () => {
-            const code = await sock.requestPairingCode(number);
-            console.log("==========================");
-            console.log("JOUW CODE: " + code);
-            console.log("==========================");
-        }, 5000);
+            try {
+                const code = await sock.requestPairingCode(number);
+                console.log("========================");
+                console.log("JOUW CODE: " + code);
+                console.log("VUL IN OP JE TELEFOON NU!");
+                console.log("========================");
+            } catch(e) {
+                console.log("Fout bij code aanvragen: ", e.message);
+            }
+        }, 3000);
     }
 
     sock.ev.on("connection.update", (u) => {
-        if(u.connection === "open") console.log("ONLINE!!!");
+        if(u.connection === "open") console.log("ONLINE!!! It Oaljehok is gekoppeld!");
     });
 
     sock.ev.on("messages.upsert", async (m) => {
         const msg = m.messages[0];
         if(!msg.message || msg.key.fromMe) return;
-        const text = msg.message.conversation || "";
+        const text = msg.message.conversation || msg.message.extendedTextMessage?.text || "";
         if(text.toLowerCase() === "ping"){
             await sock.sendMessage(msg.key.remoteJid, {text: "Pong! It Oaljehok bot is online"});
         }
