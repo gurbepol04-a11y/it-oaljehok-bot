@@ -2,12 +2,11 @@ import http from "http";
 http.createServer((req,res)=>res.end("It Oaljehok bot is online")).listen(process.env.PORT||3000);
 
 import makeWASocket, { useMultiFileAuthState, DisconnectReason } from "@whiskeysockets/baileys";
-import { Boom } from "@hapi/boom";
 import qrcode from "qrcode-terminal";
 
 async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState("auth");
-    const sock = makeWASocket({ auth: state, printQRInTerminal: true });
+    const sock = makeWASocket({ auth: state, printQRInTerminal: false });
 
     sock.ev.on("creds.update", saveCreds);
 
@@ -18,7 +17,9 @@ async function startBot() {
             qrcode.generate(qr, {small: true});
         }
         if(connection === "close"){
-            const shouldReconnect = (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
+            const statusCode = lastDisconnect?.error?.output?.statusCode;
+            const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
+            console.log("Verbinding gesloten, opnieuw proberen...", shouldReconnect);
             if(shouldReconnect) startBot();
         } else if(connection === "open"){
             console.log("ONLINE: It Oaljehok bot is online!");
@@ -30,7 +31,7 @@ async function startBot() {
         if(!msg.message || msg.key.fromMe) return;
         const text = msg.message.conversation || msg.message.extendedTextMessage?.text || "";
         if(text.toLowerCase() === "ping"){
-            await sock.sendMessage(msg.key.remoteJid, {text: "Pong! It Oaljehok bot is online 🏕️"});
+            await sock.sendMessage(msg.key.remoteJid, {text: "Pong! It Oaljehok bot is online"});
         }
     });
 }
