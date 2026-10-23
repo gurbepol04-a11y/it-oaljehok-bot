@@ -2,7 +2,6 @@ import http from "http";
 http.createServer((req,res)=>res.end("It Oaljehok bot is online")).listen(process.env.PORT||3000);
 
 import makeWASocket, { useMultiFileAuthState, DisconnectReason } from "@whiskeysockets/baileys";
-import qrcode from "qrcode-terminal";
 
 async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState("auth");
@@ -10,15 +9,19 @@ async function startBot() {
 
     sock.ev.on("creds.update", saveCreds);
 
+    if(!sock.authState.creds.registered){
+        const phoneNumber = "31647317700"; // <--- HIER JOUW NUMMER INVULLEN
+        setTimeout(async () => {
+            let code = await sock.requestPairingCode(phoneNumber);
+            console.log("JOUW KOPPELCODE: " + code);
+            console.log("Ga in WhatsApp naar: Instellingen > Gekoppelde apparaten > Koppelen met telefoonnummer > Vul code in: " + code);
+        }, 3000);
+    }
+
     sock.ev.on("connection.update", async (update) => {
-        const { connection, lastDisconnect, qr } = update;
-        if(qr){
-            console.log("SCAN DEZE QR IN WHATSAPP:");
-            qrcode.generate(qr, {small: true});
-        }
+        const { connection, lastDisconnect } = update;
         if(connection === "close"){
-            const statusCode = lastDisconnect?.error?.output?.statusCode;
-            const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
+            const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
             if(shouldReconnect) startBot();
         } else if(connection === "open"){
             console.log("ONLINE: It Oaljehok bot is online!");
