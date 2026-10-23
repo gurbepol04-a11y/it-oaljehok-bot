@@ -19,7 +19,6 @@ async function startBot() {
         if(connection === "close"){
             const statusCode = lastDisconnect?.error?.output?.statusCode;
             const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
-            console.log("Verbinding gesloten, opnieuw proberen...", shouldReconnect);
             if(shouldReconnect) startBot();
         } else if(connection === "open"){
             console.log("ONLINE: It Oaljehok bot is online!");
