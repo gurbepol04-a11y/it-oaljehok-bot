@@ -15,7 +15,7 @@ async function startBot() {
                 const code = await sock.requestPairingCode(number);
                 console.log("========================");
                 console.log("JOUW CODE: " + code);
-                console.log("VUL IN OP JE TELEFOON NU!");
+                console.log("VUL IN OP JE TELEFOON NU DOE DAN ACHTERLIJKE TERIGNGLIJER! MVG EIGENAAR KEET IT OAJEHOK");
                 console.log("========================");
             } catch(e) {
                 console.log("Fout bij code aanvragen: ", e.message);
